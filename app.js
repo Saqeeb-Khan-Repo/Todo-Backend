@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
-const Port = 3000;
+require("dotenv").config;
+const PORT = process.env.PORT || 3000;
 const userModel = require("./models/User");
 
 const app = express();
@@ -8,17 +9,27 @@ const app = express();
 app.use(cors()); //middlewear
 app.use(express.json()); //middlewear
 
+app.get("/", (req, res) => {
+  res.json({
+    message: "Backend is live on railway",
+  });
+});
+
 app.post("/create", (req, res) => {
   //CREATE
   const userData = req.body;
   userModel
     .create(userData)
-    .then((user) => res.json(user))
+    .then((user) => {
+      res.json(user);
+      console.log("Todo Task:", user);
+    })
     .catch((err) => res.json(err));
 });
 
-app.get("/", async (req, res) => {
+app.get("/todo", async (req, res) => {
   //READ
+
   try {
     const todos = await userModel.find({}).sort({ createdAt: -1 });
     res.json(todos);
@@ -63,15 +74,16 @@ app.delete("/delete/:id", async (req, res) => {
   const id = req.params.id;
   userModel
     .findByIdAndDelete({ _id: id })
-    .then((data) =>
+    .then((data) => {
       res.json({
         message: "Book is deleted",
         data: data,
-      })
-    )
+      });
+      console.log("deleted todo:", data);
+    })
     .catch((err) => res.json(err));
 });
 
-app.listen(Port, () => {
-  console.log(`Your App is Live At ${Port}`);
+app.listen(PORT, () => {
+  console.log(`Your App is Live At ${PORT}`);
 });
